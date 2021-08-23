@@ -49,7 +49,7 @@ int main() {
   std::chrono::high_resolution_clock::time_point time_start, time_end;
   std::chrono::milliseconds time_diff;
 
-  std::cout << "Computing mask..." << std::flush;
+  std::cout << "Computing mult..." << std::flush;
   Ciphertext output;
   time_start = std::chrono::high_resolution_clock::now();
   evaluator.multiply(ciph, ciph, output);
