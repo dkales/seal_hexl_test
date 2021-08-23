@@ -52,38 +52,9 @@ int main() {
   size_t slots = bt.slot_count();
 
   std::cout << "Computing mask..." << std::flush;
-  Ciphertext mask;
+  Ciphertext output;
   time_start = std::chrono::high_resolution_clock::now();
-  Ciphertext mask_bin;
-  Ciphertext in_minus_1;
-  Plaintext one, r;
-  bt.encode(std::vector<uint64_t>(slots, 1), one);
-  bt.encode(std::vector<uint64_t>(slots, 12345), r);
-  evaluator.sub_plain(ciph, one, in_minus_1);
-  Ciphertext dy;
-  evaluator.multiply_plain(in_minus_1, r, mask_bin);
-
-  evaluator.multiply_inplace(mask_bin, ciph);
-  evaluator.relinearize_inplace(mask_bin, relin_keys);
-  Ciphertext rotated;
-  uint64_t rot_index = 1;
-  while (rot_index < (slots >> 1)) {
-    evaluator.rotate_rows(mask_bin, rot_index, galois_keys, rotated);
-    evaluator.add_inplace(mask_bin, rotated);
-    rot_index *= 2;
-  }
-  evaluator.rotate_columns(mask_bin, galois_keys, rotated);
-  evaluator.add_inplace(mask_bin, rotated);
-
-  // r vec
-  Plaintext r_enc;
-  std::vector<uint64_t> r_decode;
-  r_decode.reserve(slots);
-  for (uint64_t j = 0; j < slots; j++) {
-    r_decode.push_back(12345);
-  }
-  bt.encode(r_decode, r_enc);
-  evaluator.multiply_plain(mask_bin, r_enc, mask);
+  evaluator.multiply(ciph, ciph, output);
   time_end = std::chrono::high_resolution_clock::now();
   time_diff = std::chrono::duration_cast<std::chrono::milliseconds>(time_end -
                                                                     time_start);
@@ -92,28 +63,15 @@ int main() {
 
   //----------------------------------------------------------------
 
-  std::cout << "Final noise: " << decryptor.invariant_noise_budget(mask)
+  std::cout << "Final noise: " << decryptor.invariant_noise_budget(output)
             << std::endl;
-  std::cout << "Decrypting mask..." << std::flush;
+  std::cout << "Decrypting..." << std::flush;
 
   std::vector<uint64_t> res;
   Plaintext pt_dec;
-  decryptor.decrypt(mask, pt_dec);
+  decryptor.decrypt(output, pt_dec);
   bt.decode(pt_dec, res);
   std::cout << "...done" << std::endl;
-
-  std::cout << "Result:" << std::endl;
-  bool correct = true;
-
-  for (auto el : res) {
-    if (el != 0)
-      correct = false;
-  }
-
-  if (correct)
-    std::cout << "Test passed!" << std::endl;
-  else
-    std::cout << "Test failed..." << std::endl;
 
   return 0;
 }
