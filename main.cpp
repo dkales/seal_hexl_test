@@ -49,7 +49,6 @@ int main() {
 
   std::chrono::high_resolution_clock::time_point time_start, time_end;
   std::chrono::milliseconds time_diff;
-  size_t slots = bt.slot_count();
 
   std::cout << "Computing mask..." << std::flush;
   Ciphertext output;
