@@ -9,7 +9,6 @@ using namespace seal;
 
 namespace PARAMS {
 constexpr uint64_t PLAIN_MODULUS = (4398046150657ULL); // 42 bit
-constexpr uint64_t MAX_PRIME_SIZE = ((1ULL << 42) - 1);
 constexpr uint64_t MOD_DEGREE = 16384;
 } // namespace PARAMS
 
